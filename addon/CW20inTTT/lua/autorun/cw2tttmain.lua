@@ -15,17 +15,17 @@ OriginalWeapons = {
 ImportantValues = {
     ["PrintName"] = "PrintName",
     ["Slot"] = "Slot",
-    ["Icon"] = "", --Needs transfer, not copy
-    ["Kind"] = "", --Needs transfer, not copy
-    ["WeaponID"] = "", --Needs transfer, not copy
+    ["Icon"] = false, --Needs transfer, not copy
+    ["Kind"] = false, --Needs transfer, not copy
+    ["WeaponID"] = false, --Needs transfer, not copy
     ["Delay"] = "FireDelay",
     ["Recoil"] = "Recoil",
     ["Damage"] = "Damage",
     ["Cone"] = "Hipspread", --May also need to copy to Aimspread as well
     ["ClipSize"] = "Primary.ClipSize",
-    ["ClipMax"] = "", --Needs transfer, not copy
+    ["ClipMax"] = false, --Needs transfer, not copy
     ["DefaultClip"] = "Primary.DefaultClip",
-    ["AmmoEnt"] = "", --Needs transfer, not copy
+    ["AmmoEnt"] = false, --Needs transfer, not copy
     ["HeadshotMultiplier"] = "", --MAY need transfer/copy, CW2.0 includes no function of its own
     ["NumShots"] = "Shots" --For shotguns
 }
@@ -38,10 +38,11 @@ hook.Add( "PostGamemodeLoaded", "CW20inTTT", function()
 
     function weapons.OnLoaded()
         --First, we're going to load the CW2.0 base up with the necessary functions from the TTT weapon base
-        local cwwepbase = weapons.GetStored( "cw_base" )
-        local tttwepbase = weapons.GetStored( "weapon_tttbase" )
+        local cwwepbase = weapons.GetStored( "cw_base" ) --We are MODIFYING the CW base the weapons are derived from
+        local tttwepbase = weapons.Get( "weapon_tttbase" ) --We are COPYING information form the TTT weapon base
         --To do: copy the necessary functions over
             --What functions? I think drop, ammo, dna, holster, and client info?
+            --Don't forget the CLIENT info, if CLIENT then
 
         --Next, check which base TTT weapons are still relatively unmodified (or extracting values might throw errors)
         for k, v in pairs( OriginalWeapons ) do
@@ -57,7 +58,15 @@ hook.Add( "PostGamemodeLoaded", "CW20inTTT", function()
         --Temporary Solution
         for k, v in pairs( OriginalWeapons ) do
             if v[1] == true then
-                weapons.GetStored( k ) = weapons.GetStored( v[2] )
+                --weapons.GetStored( k ) = weapons.GetStored( v[2] )
+                local tempweptable = weapons.Get( v[2] )
+                tempweptable.Weight = 0 --Set this to 0 if we want to, essentially, disable the weight modifier to the weapons
+                
+                for k2, v2 in pairs( ImportantValues ) do
+                    if v2 then
+                        tempweptable[ v2 ] = k[ k1 ] --Should work
+                    end
+                end
             end
         end
     end
